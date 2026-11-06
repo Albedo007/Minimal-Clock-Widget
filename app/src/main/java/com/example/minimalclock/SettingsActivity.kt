@@ -1,11 +1,12 @@
+
 package com.example.minimalclock
 
 import android.app.Activity
 import android.os.Bundle
 import android.graphics.Color
-import android.view.Gravity
-import android.widget.*
 import android.content.Context
+import android.view.View
+import android.widget.*
 
 class SettingsActivity : Activity() {
 
@@ -33,19 +34,69 @@ class SettingsActivity : Activity() {
 
         fun addSizeSetting(label: String, key: String, default: Int) {
             addLabel("$label size")
+
             val seek = SeekBar(this).apply {
                 max = 100
                 progress = prefs.getInt(key, default).coerceIn(10, 100)
             }
+
             layout.addView(seek)
-            seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(s: SeekBar?, p: Int, u: Boolean) {
-                    prefs.edit().putInt(key, p.coerceAtLeast(10)).apply()
-                    ClockWidgetProvider.updateAll(this@SettingsActivity)
+
+            seek.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        if (fromUser) {
+                            prefs.edit()
+                                .putInt(key, progress.coerceAtLeast(10))
+                                .apply()
+                            ClockWidgetProvider.updateAll(this@SettingsActivity)
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {}
                 }
-                override fun onStartTrackingTouch(s: SeekBar?) {}
-                override fun onStopTrackingTouch(s: SeekBar?) {}
-            })
+            )
+        }
+
+        fun addSpinner(
+            label: String,
+            options: List<String>,
+            selectedIndex: Int,
+            onSelected: (Int) -> Unit
+        ) {
+            addLabel(label)
+
+            val spinner = Spinner(this)
+            spinner.adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                options
+            )
+
+            spinner.setSelection(selectedIndex.coerceIn(options.indices))
+
+            spinner.onItemSelectedListener =
+                object : android.widget.AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(
+                        parent: android.widget.AdapterView<*>?
+                    ) {}
+
+                    override fun onItemSelected(
+                        parent: android.widget.AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        onSelected(position)
+                    }
+                }
+
+            layout.addView(spinner)
         }
 
         addLabel("MINIMAL CLOCK SETTINGS")
@@ -54,30 +105,17 @@ class SettingsActivity : Activity() {
         addSizeSetting("Time", "time_size", 58)
         addSizeSetting("Date", "date_size", 22)
 
-        addLabel("Font weight")
         val weights = listOf("Thin", "Light", "Regular", "Medium", "Bold")
-        val spinner = Spinner(this)
-        spinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            weights
-        )
-        spinner.setSelection(prefs.getInt("weight", 0))
-        layout.addView(spinner)
-        spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-            override fun onItemSelected(
-                parent: android.widget.AdapterView<*>?,
-                view: android.view.View?,
-                position: Int,
-                id: Long
-            ) {
-                prefs.edit().putInt("weight", position).apply()
-                ClockWidgetProvider.updateAll(this@SettingsActivity)
-            }
+
+        addSpinner(
+            "Time font weight",
+            weights,
+            prefs.getInt("weight", 0).coerceIn(0, 4)
+        ) { position ->
+            prefs.edit().putInt("weight", position).apply()
+            ClockWidgetProvider.updateAll(this)
         }
 
-        addLabel("Text color")
         val colors = linkedMapOf(
             "White" to Color.WHITE,
             "Black" to Color.BLACK,
@@ -86,27 +124,21 @@ class SettingsActivity : Activity() {
             "Yellow" to Color.YELLOW,
             "Green" to Color.GREEN
         )
-        val colorSpinner = Spinner(this)
-        colorSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            colors.keys.toList()
-        )
-        colorSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-            override fun onItemSelected(
-                parent: android.widget.AdapterView<*>?,
-                view: android.view.View?,
-                position: Int,
-                id: Long
-            ) {
-                prefs.edit().putInt("foreground", colors.values.toList()[position]).apply()
-                ClockWidgetProvider.updateAll(this@SettingsActivity)
-            }
-        }
-        layout.addView(colorSpinner)
 
-        addLabel("Background")
+        val currentColor = prefs.getInt("foreground", Color.WHITE)
+        val colorIndex = colors.values.indexOf(currentColor).coerceAtLeast(0)
+
+        addSpinner(
+            "Text color",
+            colors.keys.toList(),
+            colorIndex
+        ) { position ->
+            prefs.edit()
+                .putInt("foreground", colors.values.toList()[position])
+                .apply()
+            ClockWidgetProvider.updateAll(this)
+        }
+
         val backgrounds = linkedMapOf(
             "Transparent" to Color.TRANSPARENT,
             "Black" to Color.BLACK,
@@ -114,25 +146,21 @@ class SettingsActivity : Activity() {
             "Red" to Color.RED,
             "Blue" to Color.BLUE
         )
-        val bgSpinner = Spinner(this)
-        bgSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            backgrounds.keys.toList()
-        )
-        bgSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-            override fun onItemSelected(
-                parent: android.widget.AdapterView<*>?,
-                view: android.view.View?,
-                position: Int,
-                id: Long
-            ) {
-                prefs.edit().putInt("background", backgrounds.values.toList()[position]).apply()
-                ClockWidgetProvider.updateAll(this@SettingsActivity)
-            }
+
+        val currentBackground = prefs.getInt("background", Color.TRANSPARENT)
+        val backgroundIndex =
+            backgrounds.values.indexOf(currentBackground).coerceAtLeast(0)
+
+        addSpinner(
+            "Widget background",
+            backgrounds.keys.toList(),
+            backgroundIndex
+        ) { position ->
+            prefs.edit()
+                .putInt("background", backgrounds.values.toList()[position])
+                .apply()
+            ClockWidgetProvider.updateAll(this)
         }
-        layout.addView(bgSpinner)
 
         val scroll = ScrollView(this)
         scroll.addView(layout)
