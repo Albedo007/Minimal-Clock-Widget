@@ -8,7 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.SystemClock
+import android.os.Build
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -27,7 +27,6 @@ class ClockWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-
         if (intent.action == ACTION_TICK) {
             updateAll(context)
             scheduleUpdates(context)
@@ -39,7 +38,8 @@ class ClockWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDisabled(context: Context) {
-        val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarm = context.getSystemService(Context.ALARM_SERVICE)
+            as AlarmManager
         alarm.cancel(tickPendingIntent(context))
     }
 
@@ -95,14 +95,32 @@ class ClockWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.time, foreground)
             views.setTextColor(R.id.date, foreground)
 
+            // Change font weight of the large time only.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val timeStyle = when (prefs.getInt("weight", 0)) {
+                    0 -> R.style.TimeThin
+                    1 -> R.style.TimeLight
+                    2 -> R.style.TimeRegular
+                    3 -> R.style.TimeMedium
+                    else -> R.style.TimeBold
+                }
+
+                views.setTextViewTextAppearance(
+                    R.id.time,
+                    timeStyle
+                )
+            }
+
             views.setTextViewTextSize(
                 R.id.weekday, 2,
                 prefs.getInt("day_size", 34).toFloat()
             )
+
             views.setTextViewTextSize(
                 R.id.time, 2,
                 prefs.getInt("time_size", 58).toFloat()
             )
+
             views.setTextViewTextSize(
                 R.id.date, 2,
                 prefs.getInt("date_size", 22).toFloat()
@@ -138,6 +156,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
                 as AlarmManager
 
             val pendingIntent = tickPendingIntent(context)
+
             val nextMinute = System.currentTimeMillis() -
                 (System.currentTimeMillis() % 60000L) + 60000L
 
