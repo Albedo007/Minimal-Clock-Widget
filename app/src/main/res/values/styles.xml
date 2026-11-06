@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
-       <style name="TimeThin">
-    <item name="android:fontFamily">sans-serif-thin</item>
-</style>
-
-<style name="TimeLight">
-    <item name="android:fontFamily">sans-serif-light</item>
-</style>
-
-<style name="TimeRegular">
-    <item name="android:fontFamily">sans-serif</item>
-</style>
-
-<style name="TimeMedium">
-    <item name="android:fontFamily">sans-serif-medium</item>
-</style>
-
-<style name="TimeBold">
-    <item name="android:fontFamily">sans-serif</item>
-    <item name="android:textStyle">bold</item>
-</style> <item name="android:fontFamily">sans</item>
+        <item name="android:fontFamily">sans</item>
         <item name="android:colorAccent">#FFFFFF</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <style name="TimeThin" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TimeLight" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TimeRegular" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TimeMedium" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TimeBold" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
