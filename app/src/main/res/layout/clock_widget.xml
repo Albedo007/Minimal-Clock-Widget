@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="12dp"
+    android:background="@android:color/transparent">
+
+    <TextView
+        android:id="@+id/weekday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MONDAY"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:letterSpacing="0.12"
+        android:fontFamily="sans-serif-light" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="09:41"
+        android:textColor="#FFFFFF"
+        android:textSize="52sp"
+        android:fontFamily="sans-serif-thin"
+        android:includeFontPadding="false"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOVEMBER 06"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:letterSpacing="0.08"
+        android:fontFamily="sans-serif-light" />
+
+</LinearLayout>
