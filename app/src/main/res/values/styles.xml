@@ -1,33 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="android:colorAccent">#DCDCE1</item>
-        <item name="android:windowBackground">#0C0C0E</item>
-        <item name="android:statusBarColor">#0C0C0E</item>
-        <item name="android:navigationBarColor">#0C0C0E</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowActionModeOverlay">true</item>
-    </style>
+<style name="ClockTimeThin">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:text">09:41</item>
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textSize">52sp</item>
+    <item name="android:fontFamily">sans-serif-thin</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:singleLine">true</item>
+</style>
 
-    <style name="TimeThin" parent="@android:style/TextAppearance.Material">
-        <item name="android:fontFamily">sans-serif-thin</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-    <style name="TimeLight" parent="@android:style/TextAppearance.Material">
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-    <style name="TimeRegular" parent="@android:style/TextAppearance.Material">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-    <style name="TimeMedium" parent="@android:style/TextAppearance.Material">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-    <style name="TimeBold" parent="@android:style/TextAppearance.Material">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-</resources>
+<style name="ClockTimeLight">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:text">09:41</item>
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textSize">52sp</item>
+    <item name="android:fontFamily">sans-serif-light</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:singleLine">true</item>
+</style>
+
+<style name="ClockTimeRegular">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:text">09:41</item>
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textSize">52sp</item>
+    <item name="android:fontFamily">sans-serif</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:singleLine">true</item>
+</style>
+
+<style name="ClockTimeMedium">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:text">09:41</item>
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textSize">52sp</item>
+    <item name="android:fontFamily">sans-serif-medium</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:singleLine">true</item>
+</style>
+
+<style name="ClockTimeBold">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:text">09:41</item>
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textSize">52sp</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:singleLine">true</item>
+</style>
