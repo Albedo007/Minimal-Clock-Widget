@@ -1,3 +1,4 @@
+
 package com.example.minimalclock
 
 import android.app.AlarmManager
@@ -8,7 +9,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -95,20 +95,23 @@ class ClockWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.time, foreground)
             views.setTextColor(R.id.date, foreground)
 
-            // Change font weight of the large time only.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val timeStyle = when (prefs.getInt("weight", 0)) {
-                    0 -> R.style.TimeThin
-                    1 -> R.style.TimeLight
-                    2 -> R.style.TimeRegular
-                    3 -> R.style.TimeMedium
-                    else -> R.style.TimeBold
-                }
+            val weight = prefs.getInt("weight", 0)
+            val typeface = when (weight) {
+                0 -> "sans-serif-thin"
+                1 -> "sans-serif-light"
+                2 -> "sans-serif"
+                3 -> "sans-serif-medium"
+                else -> "sans-serif"
+            }
 
-                views.setTextViewTextAppearance(
-                    R.id.time,
-                    timeStyle
-                )
+            views.setString(
+                R.id.time,
+                "setTypeface",
+                typeface
+            )
+
+            if (weight == 4) {
+                views.setInt(R.id.time, "setTypeface", 1)
             }
 
             views.setTextViewTextSize(
