@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.view.View
+import android.view.Gravity
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,6 +98,20 @@ class ClockWidgetProvider : AppWidgetProvider() {
 
             views.setTextColor(R.id.weekday, foreground)
             views.setTextColor(R.id.date, foreground)
+
+            // Apply the saved 3x3 position to the complete clock group.
+            val position = prefs.getString("position", "middle-center") ?: "middle-center"
+            val horizontal = when {
+                position.endsWith("left") -> Gravity.LEFT
+                position.endsWith("right") -> Gravity.RIGHT
+                else -> Gravity.CENTER_HORIZONTAL
+            }
+            val vertical = when {
+                position.startsWith("top") -> Gravity.TOP
+                position.startsWith("bottom") -> Gravity.BOTTOM
+                else -> Gravity.CENTER_VERTICAL
+            }
+            views.setInt(R.id.widget_root, "setGravity", horizontal or vertical)
 
             val selectedWeight = prefs.getInt("weight", 0)
                 .coerceIn(0, 4)

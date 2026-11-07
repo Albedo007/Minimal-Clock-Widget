@@ -32,6 +32,14 @@ class SettingsActivity : Activity() {
     private lateinit var previewTime: TextView
     private lateinit var previewDate: TextView
     private lateinit var previewBackgroundNote: TextView
+    private lateinit var positionGrid: GridLayout
+    private val draft = mutableMapOf<String, Int>()
+    private var draftPosition = "middle-center"
+    private val positionNames = listOf(
+        "top-left", "top-center", "top-right",
+        "middle-left", "middle-center", "middle-right",
+        "bottom-left", "bottom-center", "bottom-right"
+    )
 
     private data class Choice(val label: String, val color: Int)
 
@@ -90,6 +98,22 @@ class SettingsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        listOf("foreground", "background", "day_size", "time_size", "date_size", "weight").forEach { key ->
+            val default = when (key) {
+                "foreground" -> Color.WHITE
+                "background" -> Color.TRANSPARENT
+                "day_size" -> 34
+                "time_size" -> 58
+                "date_size" -> 22
+                else -> 0
+            }
+            draft[key] = savedInstanceState?.getInt("draft_$key")
+                ?: prefs.getInt(key, default)
+        }
+        draftPosition = savedInstanceState?.getString("draft_position")
+            ?: prefs.getString("position", "middle-center") ?: "middle-center"
+        if (draftPosition !in positionNames) draftPosition = "middle-center"
 
         window.statusBarColor = page
         window.navigationBarColor = page
@@ -253,6 +277,38 @@ class SettingsActivity : Activity() {
 
         refreshPreview()
 
+        // POSITION SELECTOR
+        addSection(content, "POSITION", "Choose where the clock sits in the widget")
+        val positionCard = newCard()
+        positionGrid = GridLayout(this).apply {
+            columnCount = 3
+            rowCount = 3
+            useDefaultMargins = false
+        }
+        val positionSymbols = listOf("↖", "↑", "↗", "←", "●", "→", "↙", "↓", "↘")
+        positionNames.forEachIndexed { index, position ->
+            val cell = text(positionSymbols[index], 23f, white).apply {
+                gravity = Gravity.CENTER
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    draftPosition = position
+                    updatePositionSelection()
+                    refreshPreview()
+                }
+            }
+            positionGrid.addView(cell, GridLayout.LayoutParams().apply {
+                width = 0
+                height = dp(54)
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                rowSpec = GridLayout.spec(GridLayout.UNDEFINED)
+                setMargins(dp(4), dp(4), dp(4), dp(4))
+            })
+        }
+        positionCard.addView(positionGrid)
+        content.addView(positionCard)
+        updatePositionSelection()
+
         // TYPOGRAPHY
         addSection(
             content,
@@ -321,15 +377,8 @@ class SettingsActivity : Activity() {
                 isFocusable = true
 
                 setOnClickListener {
-                    prefs.edit()
-                        .putInt("weight", index)
-                        .apply()
-
+                    draft["weight"] = index
                     refreshPreview()
-
-                    ClockWidgetProvider.updateAll(
-                        this@SettingsActivity
-                    )
 
                     updateWeightSelection(
                         weightRow,
@@ -356,7 +405,7 @@ class SettingsActivity : Activity() {
         updateWeightSelection(
             weightRow,
             weightNames,
-            prefs.getInt("weight", 0).coerceIn(0, 4)
+            draft["weight"]?.coerceIn(0, 4) ?: 0
         )
 
         // TEXT COLOR
@@ -393,21 +442,94 @@ class SettingsActivity : Activity() {
 
         content.addView(backgroundCard)
 
-        // FOOTER
+        // SAVE AND RESET BUTTONS
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(0, dp(26), 0, dp(8))
+        }
+
+        val resetButton = text("RESET", 13f, white, true).apply {
+            gravity = Gravity.CENTER
+            background = rounded(panelSoft, 14, Color.rgb(65, 65, 72))
+            setPadding(dp(18), dp(15), dp(18), dp(15))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                draft["foreground"] = Color.WHITE
+                draft["background"] = Color.TRANSPARENT
+                draft["day_size"] = 34
+                draft["time_size"] = 58
+                draft["date_size"] = 22
+                draft["weight"] = 0
+                draftPosition = "middle-center"
+                Toast.makeText(this@SettingsActivity, "Defaults restored in preview. Tap Save to apply.", Toast.LENGTH_SHORT).show()
+                recreate()
+            }
+        }
+        val saveButton = text("SAVE", 13f, Color.WHITE, true).apply {
+            gravity = Gravity.CENTER
+            background = rounded(accent, 14)
+            setPadding(dp(30), dp(15), dp(30), dp(15))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val editor = prefs.edit()
+                draft.forEach { (key, value) -> editor.putInt(key, value) }
+                editor.putString("position", draftPosition)
+                editor.apply()
+                ClockWidgetProvider.updateAll(this@SettingsActivity)
+                Toast.makeText(this@SettingsActivity, "Clock settings saved", Toast.LENGTH_SHORT).show()
+            }
+        }
+        buttonRow.addView(resetButton, LinearLayout.LayoutParams(0, dp(50), 1f).apply { marginEnd = dp(8) })
+        buttonRow.addView(saveButton, LinearLayout.LayoutParams(0, dp(50), 1.5f))
+        content.addView(buttonRow)
+
         val footer = text(
-            "Changes save automatically and update your home-screen widget.",
-            12f,
-            muted
-        )
-
-        footer.gravity = Gravity.CENTER
-        footer.setPadding(
-            dp(12), dp(22), dp(12), dp(8)
-        )
-
+            "Changes are applied to your home-screen widget only after you tap Save.",
+            12f, muted
+        ).apply {
+            gravity = Gravity.CENTER
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+        }
         content.addView(footer)
 
         setContentView(scroll)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        draft.forEach { (key, value) -> outState.putInt("draft_$key", value) }
+        outState.putString("draft_position", draftPosition)
+    }
+
+    private fun updatePositionSelection() {
+        if (!::positionGrid.isInitialized) return
+        for (i in 0 until positionGrid.childCount) {
+            val cell = positionGrid.getChildAt(i) as TextView
+            val selected = positionNames[i] == draftPosition
+            cell.background = rounded(
+                if (selected) Color.rgb(75, 20, 31) else panelSoft,
+                12,
+                if (selected) accent else Color.rgb(65, 65, 72)
+            )
+            cell.setTextColor(if (selected) accent else white)
+        }
+    }
+
+    private fun positionGravity(): Int {
+        val horizontal = when {
+            draftPosition.endsWith("left") -> Gravity.LEFT
+            draftPosition.endsWith("right") -> Gravity.RIGHT
+            else -> Gravity.CENTER_HORIZONTAL
+        }
+        val vertical = when {
+            draftPosition.startsWith("top") -> Gravity.TOP
+            draftPosition.startsWith("bottom") -> Gravity.BOTTOM
+            else -> Gravity.CENTER_VERTICAL
+        }
+        return horizontal or vertical
     }
 
     private fun newCard(): LinearLayout {
@@ -489,7 +611,7 @@ class SettingsActivity : Activity() {
         val seek = SeekBar(this).apply {
             this.max = max - min
 
-            progress = prefs.getInt(key, default)
+            progress = (draft[key] ?: prefs.getInt(key, default))
                 .coerceIn(min, max) - min
 
             progressTintList =
@@ -530,15 +652,8 @@ class SettingsActivity : Activity() {
                     show(actual)
 
                     if (fromUser) {
-                        prefs.edit()
-                            .putInt(key, actual)
-                            .apply()
-
+                        draft[key] = actual
                         refreshPreview()
-
-                        ClockWidgetProvider.updateAll(
-                            this@SettingsActivity
-                        )
                     }
                 }
 
@@ -560,12 +675,9 @@ class SettingsActivity : Activity() {
         choices: List<Choice>,
         preferenceKey: String
     ) {
-        val selected = prefs.getInt(
+        val selected = draft[preferenceKey] ?: prefs.getInt(
             preferenceKey,
-            if (preferenceKey == "foreground")
-                Color.WHITE
-            else
-                Color.TRANSPARENT
+            if (preferenceKey == "foreground") Color.WHITE else Color.TRANSPARENT
         )
 
         val row = LinearLayout(this).apply {
@@ -617,16 +729,8 @@ class SettingsActivity : Activity() {
 
                 setOnClickListener {
 
-                    prefs.edit()
-                        .putInt(preferenceKey, choice.color)
-                        .apply()
-
+                    draft[preferenceKey] = choice.color
                     refreshPreview()
-
-                    ClockWidgetProvider.updateAll(
-                        this@SettingsActivity
-                    )
-
                     recreate()
                 }
 
@@ -704,9 +808,7 @@ class SettingsActivity : Activity() {
                 .uppercase(locale)
 
         // TEXT COLOR
-        val foreground = prefs.getInt(
-            "foreground", Color.WHITE
-        )
+        val foreground = draft["foreground"] ?: Color.WHITE
 
         previewWeekday.setTextColor(foreground)
         previewTime.setTextColor(foreground)
@@ -714,21 +816,16 @@ class SettingsActivity : Activity() {
 
         // FONT SIZES
         previewWeekday.textSize =
-            prefs.getInt("day_size", 34)
-                .coerceAtLeast(10).toFloat()
+            (draft["day_size"] ?: 34).coerceAtLeast(10).toFloat()
 
         previewTime.textSize =
-            prefs.getInt("time_size", 58)
-                .coerceAtLeast(10).toFloat()
+            (draft["time_size"] ?: 58).coerceAtLeast(10).toFloat()
 
         previewDate.textSize =
-            prefs.getInt("date_size", 22)
-                .coerceAtLeast(10).toFloat()
+            (draft["date_size"] ?: 22).coerceAtLeast(10).toFloat()
 
         // FONT WEIGHT
-        val weight = prefs.getInt(
-            "weight", 0
-        ).coerceIn(0, 4)
+        val weight = (draft["weight"] ?: 0).coerceIn(0, 4)
 
         val typeface = when (weight) {
             0 -> Typeface.create(
@@ -751,9 +848,7 @@ class SettingsActivity : Activity() {
         previewTime.typeface = typeface
 
         // WIDGET BACKGROUND
-        val background = prefs.getInt(
-            "background", Color.TRANSPARENT
-        )
+        val background = draft["background"] ?: Color.TRANSPARENT
         val previewColor =
             if (background == Color.TRANSPARENT)
                 panelSoft
@@ -765,6 +860,7 @@ class SettingsActivity : Activity() {
             18,
             Color.rgb(65, 65, 72)
         )
+        previewSurface.gravity = positionGravity()
 
         previewBackgroundNote.text =
             if (background == Color.TRANSPARENT) {
