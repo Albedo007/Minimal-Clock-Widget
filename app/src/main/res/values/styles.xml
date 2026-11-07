@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#DCDCE1</item>
+        <item name="android:windowBackground">#0C0C0E</item>
+        <item name="android:statusBarColor">#0C0C0E</item>
+        <item name="android:navigationBarColor">#0C0C0E</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="TimeThin" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TimeLight" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TimeRegular" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TimeMedium" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="TimeBold" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>
