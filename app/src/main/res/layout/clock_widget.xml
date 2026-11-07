@@ -4,21 +4,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_vertical"
+    android:gravity="center"
     android:padding="12dp"
     android:background="@android:color/transparent">
 
+    <!-- WEEKDAY FONT OPTIONS -->
+
     <TextView
-        android:id="@+id/weekday"
+        android:id="@+id/weekday_font_0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="MONDAY"
         android:textColor="#FFFFFF"
         android:textSize="12sp"
-        android:fontFamily="sans-serif-light" />
+        android:fontFamily="sans-serif-thin"
+        android:visibility="visible" />
 
     <TextView
-        android:id="@+id/time_thin"
+        android:id="@+id/weekday_font_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MONDAY"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-light"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/weekday_font_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MONDAY"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/weekday_font_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MONDAY"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-medium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/weekday_font_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MONDAY"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+
+    <!-- TIME FONT 0 -->
+
+    <TextView
+        android:id="@+id/time_f0_w0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="09:41"
@@ -29,7 +75,7 @@
         android:singleLine="true" />
 
     <TextView
-        android:id="@+id/time_light"
+        android:id="@+id/time_f0_w1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="09:41"
@@ -41,7 +87,7 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/time_regular"
+        android:id="@+id/time_f0_w2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="09:41"
@@ -53,7 +99,7 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/time_medium"
+        android:id="@+id/time_f0_w3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="09:41"
@@ -65,7 +111,7 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/time_bold"
+        android:id="@+id/time_f0_w4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="09:41"
@@ -76,13 +122,168 @@
         android:singleLine="true"
         android:visibility="gone" />
 
+
+    <!-- TIME FONT 1 -->
+
     <TextView
-        android:id="@+id/date"
+        android:id="@+id/time_f1_w0"
+        style="@style/ClockTimeThin"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f1_w1"
+        style="@style/ClockTimeLight"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f1_w2"
+        style="@style/ClockTimeRegular"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f1_w3"
+        style="@style/ClockTimeMedium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f1_w4"
+        style="@style/ClockTimeBold"
+        android:visibility="gone" />
+
+
+    <!-- TIME FONT 2 -->
+
+    <TextView
+        android:id="@+id/time_f2_w0"
+        style="@style/ClockTimeThin"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f2_w1"
+        style="@style/ClockTimeLight"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f2_w2"
+        style="@style/ClockTimeRegular"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f2_w3"
+        style="@style/ClockTimeMedium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f2_w4"
+        style="@style/ClockTimeBold"
+        android:visibility="gone" />
+
+
+    <!-- TIME FONT 3 -->
+
+    <TextView
+        android:id="@+id/time_f3_w0"
+        style="@style/ClockTimeThin"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f3_w1"
+        style="@style/ClockTimeLight"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f3_w2"
+        style="@style/ClockTimeRegular"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f3_w3"
+        style="@style/ClockTimeMedium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f3_w4"
+        style="@style/ClockTimeBold"
+        android:visibility="gone" />
+
+
+    <!-- TIME FONT 4 -->
+
+    <TextView
+        android:id="@+id/time_f4_w0"
+        style="@style/ClockTimeThin"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f4_w1"
+        style="@style/ClockTimeLight"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f4_w2"
+        style="@style/ClockTimeRegular"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f4_w3"
+        style="@style/ClockTimeMedium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time_f4_w4"
+        style="@style/ClockTimeBold"
+        android:visibility="gone" />
+
+
+    <!-- DATE FONT OPTIONS -->
+
+    <TextView
+        android:id="@+id/date_font_0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NOVEMBER 06"
+        android:text="NOVEMBER 07"
         android:textColor="#FFFFFF"
         android:textSize="12sp"
-        android:fontFamily="sans-serif-light" />
+        android:fontFamily="sans-serif-thin" />
+
+    <TextView
+        android:id="@+id/date_font_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOVEMBER 07"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-light"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/date_font_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOVEMBER 07"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/date_font_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOVEMBER 07"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-medium"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/date_font_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOVEMBER 07"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
 </LinearLayout>
