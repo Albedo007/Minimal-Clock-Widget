@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
@@ -108,11 +109,9 @@ class ClockWidgetProvider : AppWidgetProvider() {
             val locale = Locale.getDefault()
 
             val weekday = SimpleDateFormat(
-                "EEEE",
-                locale
+                "EEEE", locale
             ).format(now).uppercase(locale)
 
-            // 12-hour or 24-hour format
             val timePattern =
                 if (prefs.getInt("time_format", 24) == 12) {
                     "hh:mm a"
@@ -121,51 +120,71 @@ class ClockWidgetProvider : AppWidgetProvider() {
                 }
 
             val time = SimpleDateFormat(
-                timePattern,
-                locale
-            ).format(now)
+                timePattern, locale
+            ).format(now).uppercase(locale)
 
             val date = SimpleDateFormat(
-                "MMMM dd",
-                locale
+                "MMMM dd", locale
             ).format(now).uppercase(locale)
 
             val foreground = prefs.getInt(
-                "foreground",
-                Color.WHITE
+                "foreground", Color.WHITE
             )
 
             val background = prefs.getInt(
-                "background",
-                Color.TRANSPARENT
+                "background", Color.TRANSPARENT
             )
 
-            // Weekday text
-            weekdayIds.forEach { viewId ->
-                views.setTextViewText(viewId, weekday)
-                views.setTextColor(viewId, foreground)
-            }
-
-            // Date text
-            dateIds.forEach { viewId ->
-                views.setTextViewText(viewId, date)
-                views.setTextColor(viewId, foreground)
-            }
-
-            // Background
+            // BACKGROUND
             views.setInt(
                 R.id.widget_root,
                 "setBackgroundColor",
                 background
             )
 
-            // Weekday font selection
+            // PADDING
+            val paddingDp = prefs.getInt(
+                "padding", 12
+            ).coerceIn(0, 40)
+
+            val paddingPx = (
+                paddingDp * context.resources.displayMetrics.density
+            ).toInt()
+
+            views.setViewPadding(
+                R.id.widget_root,
+                paddingPx,
+                paddingPx,
+                paddingPx,
+                paddingPx
+            )
+
+            // TEXT ALIGNMENT: 0 LEFT, 1 CENTRE, 2 RIGHT
+            val alignment = when (
+                prefs.getInt("text_alignment", 1)
+            ) {
+                0 -> Gravity.LEFT or Gravity.CENTER_VERTICAL
+                2 -> Gravity.RIGHT or Gravity.CENTER_VERTICAL
+                else -> Gravity.CENTER
+            }
+
+            val allTextIds =
+                weekdayIds.toList() +
+                dateIds.toList() +
+                timeIds.flatMap { it.toList() }
+
+            allTextIds.forEach { viewId ->
+                views.setInt(viewId, "setGravity", alignment)
+            }
+
+            // WEEKDAY
             val dayFont = prefs.getInt(
-                "weekday_font",
-                0
+                "weekday_font", 0
             ).coerceIn(0, 4)
 
             weekdayIds.forEachIndexed { index, viewId ->
+                views.setTextViewText(viewId, weekday)
+                views.setTextColor(viewId, foreground)
 
                 views.setTextViewTextSize(
                     viewId,
@@ -181,13 +200,14 @@ class ClockWidgetProvider : AppWidgetProvider() {
                 )
             }
 
-            // Date font selection
+            // DATE
             val dateFont = prefs.getInt(
-                "date_font",
-                0
+                "date_font", 0
             ).coerceIn(0, 4)
 
             dateIds.forEachIndexed { index, viewId ->
+                views.setTextViewText(viewId, date)
+                views.setTextColor(viewId, foreground)
 
                 views.setTextViewTextSize(
                     viewId,
@@ -203,19 +223,16 @@ class ClockWidgetProvider : AppWidgetProvider() {
                 )
             }
 
-            // Time font selection
+            // TIME
             val timeFont = prefs.getInt(
-                "time_font",
-                0
+                "time_font", 0
             ).coerceIn(0, 4)
 
             val selectedWeight = prefs.getInt(
-                "weight",
-                0
+                "weight", 0
             ).coerceIn(0, 4)
 
             timeIds.forEachIndexed { familyIndex, ids ->
-
                 ids.forEachIndexed { weightIndex, viewId ->
 
                     views.setTextViewText(viewId, time)
@@ -243,7 +260,6 @@ class ClockWidgetProvider : AppWidgetProvider() {
         }
 
         fun updateAll(context: Context) {
-
             val manager = AppWidgetManager.getInstance(context)
 
             val ids = manager.getAppWidgetIds(
@@ -261,7 +277,6 @@ class ClockWidgetProvider : AppWidgetProvider() {
         private fun tickPendingIntent(
             context: Context
         ): PendingIntent {
-
             val intent = Intent(
                 context,
                 ClockWidgetProvider::class.java
@@ -279,13 +294,11 @@ class ClockWidgetProvider : AppWidgetProvider() {
         }
 
         private fun scheduleUpdates(context: Context) {
-
             val alarm = context.getSystemService(
                 Context.ALARM_SERVICE
             ) as AlarmManager
 
             val pendingIntent = tickPendingIntent(context)
-
             val now = System.currentTimeMillis()
 
             val nextMinute =
