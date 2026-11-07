@@ -754,5 +754,26 @@ class SettingsActivity : Activity() {
         val background = prefs.getInt(
             "background", Color.TRANSPARENT
         )
+        val previewColor =
+            if (background == Color.TRANSPARENT)
+                panelSoft
+            else
+                background
 
-        
+        previewSurface.background = rounded(
+            previewColor,
+            18,
+            Color.rgb(65, 65, 72)
+        )
+
+        previewBackgroundNote.text =
+            if (background == Color.TRANSPARENT) {
+                "TRANSPARENT · WALLPAPER SHOWS THROUGH"
+            } else {
+                "SOLID BACKGROUND · " +
+                    (backgrounds.firstOrNull {
+                        it.color == background
+                    }?.label ?: "CUSTOM")
+            }
+    }
+}
