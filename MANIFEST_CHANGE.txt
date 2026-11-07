@@ -1,0 +1,7 @@
+In app/src/main/AndroidManifest.xml, find the opening <application ...> tag.
+Add these two attributes inside that existing tag:
+
+    android:icon="@mipmap/ic_launcher"
+    android:roundIcon="@mipmap/ic_launcher_round"
+
+Do not replace the whole manifest. Keep its existing label, theme, activities and receiver.
