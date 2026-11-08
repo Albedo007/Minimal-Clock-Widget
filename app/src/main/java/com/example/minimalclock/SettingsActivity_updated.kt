@@ -100,14 +100,13 @@ class SettingsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        listOf("foreground", "background", "day_size", "time_size", "date_size", "padding", "text_alignment", "weight", "time_format", "weekday_font", "time_font", "date_font").forEach { key ->
+        listOf("foreground", "background", "day_size", "time_size", "date_size", "text_alignment", "weight", "time_format", "weekday_font", "time_font", "date_font").forEach { key ->
             val default = when (key) {
                 "foreground" -> Color.WHITE
                 "background" -> Color.TRANSPARENT
                 "day_size" -> 34
                 "time_size" -> 58
                 "date_size" -> 22
-                "padding" -> 12
                 "text_alignment" -> 1
                 "time_format" -> 24
                 else -> 0
@@ -235,7 +234,6 @@ class SettingsActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
-        // FIXED: WRAP_CONTENT allows alignment to work
         previewSurface.addView(
             previewWeekday,
             LinearLayout.LayoutParams(
@@ -358,14 +356,6 @@ class SettingsActivity : Activity() {
             "Date size",
             "date_size",
             22, 10, 100, "sp"
-        )
-
-        addDivider(typographyCard)
-        addSlider(
-            typographyCard,
-            "Widget padding",
-            "padding",
-            12, 0, 40, "dp"
         )
 
         content.addView(typographyCard)
@@ -550,7 +540,6 @@ class SettingsActivity : Activity() {
                 draft["day_size"] = 34
                 draft["time_size"] = 58
                 draft["date_size"] = 22
-                draft["padding"] = 12
                 draft["text_alignment"] = 1
                 draft["weight"] = 0
                 draft["time_format"] = 24
@@ -656,17 +645,11 @@ class SettingsActivity : Activity() {
     }
 
     private fun positionGravity(): Int {
-        val horizontal = when {
-            draftPosition.endsWith("left") -> Gravity.LEFT
-            draftPosition.endsWith("right") -> Gravity.RIGHT
-            else -> Gravity.CENTER_HORIZONTAL
-        }
-        val vertical = when {
+        return when {
             draftPosition.startsWith("top") -> Gravity.TOP
             draftPosition.startsWith("bottom") -> Gravity.BOTTOM
             else -> Gravity.CENTER_VERTICAL
         }
-        return horizontal or vertical
     }
 
     private fun newCard(): LinearLayout {
@@ -806,7 +789,7 @@ class SettingsActivity : Activity() {
 
         parent.addView(block)
     }
-    
+
     private fun addColorChoices(
         parent: LinearLayout,
         choices: List<Choice>,
@@ -956,14 +939,12 @@ class SettingsActivity : Activity() {
                 .format(now)
                 .uppercase(locale)
 
-        // TEXT COLOR
         val foreground = draft["foreground"] ?: Color.WHITE
 
         previewWeekday.setTextColor(foreground)
         previewTime.setTextColor(foreground)
         previewDate.setTextColor(foreground)
 
-        // FONT SIZES
         previewWeekday.textSize =
             (draft["day_size"] ?: 34).coerceAtLeast(10).toFloat()
 
@@ -973,7 +954,6 @@ class SettingsActivity : Activity() {
         previewDate.textSize =
             (draft["date_size"] ?: 22).coerceAtLeast(10).toFloat()
 
-        // FONT WEIGHT
         val weight = (draft["weight"] ?: 0).coerceIn(0, 4)
 
         val selectedFont = (draft["time_font"] ?: 0).coerceIn(0, fontFamilies.lastIndex)
@@ -984,7 +964,6 @@ class SettingsActivity : Activity() {
         previewWeekday.typeface = Typeface.create(fontFamilies[(draft["weekday_font"] ?: 0).coerceIn(0, fontFamilies.lastIndex)], Typeface.NORMAL)
         previewDate.typeface = Typeface.create(fontFamilies[(draft["date_font"] ?: 0).coerceIn(0, fontFamilies.lastIndex)], Typeface.NORMAL)
 
-        // WIDGET BACKGROUND
         val background = draft["background"] ?: Color.TRANSPARENT
         val previewColor =
             if (background == Color.TRANSPARENT)
@@ -998,7 +977,6 @@ class SettingsActivity : Activity() {
             Color.rgb(65, 65, 72)
         )
         
-        // FIX: Combine Horizontal Alignment and Vertical Position
         val alignmentGravity = when ((draft["text_alignment"] ?: 1).coerceIn(0, 2)) {
             0 -> Gravity.LEFT
             2 -> Gravity.RIGHT
@@ -1006,9 +984,6 @@ class SettingsActivity : Activity() {
         }
         
         previewSurface.gravity = alignmentGravity or positionGravity()
-
-        val paddingPx = dp((draft["padding"] ?: 12).coerceIn(0, 40))
-        previewSurface.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
 
         previewBackgroundNote.text =
             if (background == Color.TRANSPARENT) {
