@@ -48,7 +48,6 @@ class ClockWidgetProvider : AppWidgetProvider() {
             val daySize = prefs.getInt("day_size", 34)
             val timeSize = prefs.getInt("time_size", 58)
             val dateSize = prefs.getInt("date_size", 22)
-            val padding = prefs.getInt("padding", 12)
             val alignment = prefs.getInt("text_alignment", 1)
             val timeFormat = prefs.getInt("time_format", 24)
             val position = prefs.getString("position", "middle-center") ?: "middle-center"
@@ -85,12 +84,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
                 views.setInt(R.id.widget_root, "setBackgroundColor", backgroundColor)
             }
 
-            // 5. Padding
-            val density = context.resources.displayMetrics.density
-            val paddingPx = (padding * density + 0.5f).toInt()
-            views.setViewPadding(R.id.widget_root, paddingPx, paddingPx, paddingPx, paddingPx)
-
-            // 6. Horizontal Alignment (Left/Centre/Right) -> applied to inner container
+            // 5. Horizontal Alignment (Left/Centre/Right)
             val horizGravity = when (alignment) {
                 0 -> Gravity.LEFT
                 2 -> Gravity.RIGHT
@@ -98,7 +92,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
             }
             views.setInt(R.id.widget_text_container, "setGravity", horizGravity)
 
-            // 7. Vertical Position (Top/Middle/Bottom) -> applied to root
+            // 6. Vertical Position (Top/Middle/Bottom)
             val vertGravity = when {
                 position.startsWith("top") -> Gravity.TOP
                 position.startsWith("bottom") -> Gravity.BOTTOM
@@ -106,7 +100,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
             }
             views.setInt(R.id.widget_root, "setGravity", vertGravity)
 
-            // 8. Click to open settings
+            // 7. Click to open settings
             val configIntent = Intent(context, SettingsActivity::class.java)
             val configPendingIntent = PendingIntent.getActivity(
                 context, 0, configIntent,
