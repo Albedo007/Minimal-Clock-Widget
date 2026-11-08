@@ -235,10 +235,11 @@ class SettingsActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
+        // FIXED: WRAP_CONTENT allows alignment to work
         previewSurface.addView(
             previewWeekday,
             LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
@@ -246,7 +247,7 @@ class SettingsActivity : Activity() {
         previewSurface.addView(
             previewTime,
             LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
                 topMargin = dp(9)
@@ -257,7 +258,7 @@ class SettingsActivity : Activity() {
         previewSurface.addView(
             previewDate,
             LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
@@ -805,7 +806,7 @@ class SettingsActivity : Activity() {
 
         parent.addView(block)
     }
-
+    
     private fun addColorChoices(
         parent: LinearLayout,
         choices: List<Choice>,
@@ -996,15 +997,16 @@ class SettingsActivity : Activity() {
             18,
             Color.rgb(65, 65, 72)
         )
-        previewSurface.gravity = positionGravity()
+        
+        // FIX: Combine Horizontal Alignment and Vertical Position
         val alignmentGravity = when ((draft["text_alignment"] ?: 1).coerceIn(0, 2)) {
             0 -> Gravity.LEFT
             2 -> Gravity.RIGHT
             else -> Gravity.CENTER_HORIZONTAL
         }
-        previewWeekday.gravity = alignmentGravity
-        previewTime.gravity = alignmentGravity
-        previewDate.gravity = alignmentGravity
+        
+        previewSurface.gravity = alignmentGravity or positionGravity()
+
         val paddingPx = dp((draft["padding"] ?: 12).coerceIn(0, 40))
         previewSurface.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
 
