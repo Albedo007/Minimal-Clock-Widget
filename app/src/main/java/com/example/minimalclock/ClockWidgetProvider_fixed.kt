@@ -73,7 +73,9 @@ class ClockWidgetProvider : AppWidgetProvider() {
 
             val weekday = SimpleDateFormat("EEEE", locale).format(now).uppercase(locale)
             val timePattern = if (prefs.getInt("time_format", 24) == 12) "hh:mm a" else "HH:mm"
-            val time = SimpleDateFormat(timePattern, locale).format(now)
+            val time = SimpleDateFormat(timePattern, Locale.US)
+    .format(now)
+    .uppercase(Locale.US)
             val date = SimpleDateFormat("MMMM dd", locale).format(now).uppercase(locale)
 
             val foreground = prefs.getInt("foreground", Color.WHITE)
