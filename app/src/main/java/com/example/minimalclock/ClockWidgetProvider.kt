@@ -1,6 +1,5 @@
 package com.example.minimalclock
 
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -8,8 +7,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.view.Gravity
-import android.view.View
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,297 +18,135 @@ class ClockWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
-        manager: AppWidgetManager,
-        ids: IntArray
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
     ) {
-        ids.forEach { updateWidget(context, manager, it) }
-        scheduleUpdates(context)
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-
-        if (intent.action == ACTION_TICK) {
-            updateAll(context)
-            scheduleUpdates(context)
+        for (appWidgetId in appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId)
         }
-    }
-
-    override fun onEnabled(context: Context) {
-        scheduleUpdates(context)
-    }
-
-    override fun onDisabled(context: Context) {
-        val alarm =
-            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarm.cancel(tickPendingIntent(context))
     }
 
     companion object {
-
-        private const val ACTION_TICK =
-            "com.example.minimalclock.ACTION_TICK"
-
-        private val weekdayIds = intArrayOf(
-            R.id.weekday_font_0,
-            R.id.weekday_font_1,
-            R.id.weekday_font_2,
-            R.id.weekday_font_3,
-            R.id.weekday_font_4
-        )
-
-        private val dateIds = intArrayOf(
-            R.id.date_font_0,
-            R.id.date_font_1,
-            R.id.date_font_2,
-            R.id.date_font_3,
-            R.id.date_font_4
-        )
-
-        private val timeIds = Array(5) { family ->
-            intArrayOf(
-                R.id.time_f0_w0, R.id.time_f0_w1,
-                R.id.time_f0_w2, R.id.time_f0_w3,
-                R.id.time_f0_w4,
-
-                R.id.time_f1_w0, R.id.time_f1_w1,
-                R.id.time_f1_w2, R.id.time_f1_w3,
-                R.id.time_f1_w4,
-
-                R.id.time_f2_w0, R.id.time_f2_w1,
-                R.id.time_f2_w2, R.id.time_f2_w3,
-                R.id.time_f2_w4,
-
-                R.id.time_f3_w0, R.id.time_f3_w1,
-                R.id.time_f3_w2, R.id.time_f3_w3,
-                R.id.time_f3_w4,
-
-                R.id.time_f4_w0, R.id.time_f4_w1,
-                R.id.time_f4_w2, R.id.time_f4_w3,
-                R.id.time_f4_w4
-            ).copyOfRange(family * 5, family * 5 + 5)
+        // Helper function to trigger an update from SettingsActivity
+        fun updateAll(context: Context) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(context, ClockWidgetProvider::class.java)
+            )
+            for (appWidgetId in appWidgetIds) {
+                updateAppWidget(context, appWidgetManager, appWidgetId)
+            }
         }
 
-        fun updateWidget(
+        private fun updateAppWidget(
             context: Context,
-            manager: AppWidgetManager,
-            id: Int
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int
         ) {
-            val prefs = context.getSharedPreferences(
-                "clock_settings",
-                Context.MODE_PRIVATE
-            )
+            val prefs = context.getSharedPreferences("clock_settings", Context.MODE_PRIVATE)
 
-            val views = RemoteViews(
-                context.packageName,
-                R.layout.clock_widget
-            )
+            // Load all settings from SharedPreferences
+            val foregroundColor = prefs.getInt("foreground", Color.WHITE)
+            val backgroundColor = prefs.getInt("background", Color.TRANSPARENT)
+            val daySize = prefs.getInt("day_size", 34)
+            val timeSize = prefs.getInt("time_size", 58)
+            val dateSize = prefs.getInt("date_size", 22)
+            val padding = prefs.getInt("padding", 12)
+            val alignment = prefs.getInt("text_alignment", 1)
+            val weight = prefs.getInt("weight", 0)
+            val timeFormat = prefs.getInt("time_format", 24)
+            val weekdayFont = prefs.getInt("weekday_font", 0)
+            val timeFont = prefs.getInt("time_font", 0)
+            val dateFont = prefs.getInt("date_font", 0)
+            val position = prefs.getString("position", "middle-center") ?: "middle-center"
 
+            // Initialize RemoteViews with your updated layout
+            val views = RemoteViews(context.packageName, R.layout.clock_widget_updated)
+
+            // 1. Setup the Time and Date
             val now = Date()
             val locale = Locale.getDefault()
 
-            val weekday = SimpleDateFormat(
-                "EEEE", locale
-            ).format(now).uppercase(locale)
+            val weekdayText = SimpleDateFormat("EEEE", locale).format(now).uppercase(locale)
+            val dateText = SimpleDateFormat("MMMM dd", locale).format(now).uppercase(locale)
+            val timePattern = if (timeFormat == 12) "hh:mm a" else "HH:mm"
+            val timeText = SimpleDateFormat(timePattern, locale).format(now).uppercase(locale)
 
-            val timePattern =
-                if (prefs.getInt("time_format", 24) == 12) {
-                    "hh:mm a"
-                } else {
-                    "HH:mm"
-                }
+            views.setTextViewText(R.id.weekday, weekdayText)
+            views.setTextViewText(R.id.time, timeText)
+            views.setTextViewText(R.id.date, dateText)
 
-            val time = SimpleDateFormat(
-                timePattern, locale
-            ).format(now).uppercase(locale)
+            // 2. Setup Text Colors
+            views.setTextColor(R.id.weekday, foregroundColor)
+            views.setTextColor(R.id.time, foregroundColor)
+            views.setTextColor(R.id.date, foregroundColor)
 
-            val date = SimpleDateFormat(
-                "MMMM dd", locale
-            ).format(now).uppercase(locale)
+            // 3. Setup Text Sizes
+            views.setTextViewTextSize(R.id.weekday, android.util.TypedValue.COMPLEX_UNIT_SP, daySize.toFloat())
+            views.setTextViewTextSize(R.id.time, android.util.TypedValue.COMPLEX_UNIT_SP, timeSize.toFloat())
+            views.setTextViewTextSize(R.id.date, android.util.TypedValue.COMPLEX_UNIT_SP, dateSize.toFloat())
 
-            val foreground = prefs.getInt(
-                "foreground", Color.WHITE
-            )
+            // 4. Setup Font Families
+            val fontFamilies = listOf("sans-serif", "sans-serif-light", "serif", "monospace", "sans-serif-condensed")
+            
+            val selectedDayFont = fontFamilies.getOrElse(weekdayFont) { "sans-serif" }
+            val selectedTimeFont = fontFamilies.getOrElse(timeFont) { "sans-serif" }
+            val selectedDateFont = fontFamilies.getOrElse(dateFont) { "sans-serif" }
 
-            val background = prefs.getInt(
-                "background", Color.TRANSPARENT
-            )
+            // Note: RemoteViews cannot easily change fonts dynamically without a helper library.
+            // We use setInt with "setTypeface" here, but be aware that some launchers may ignore it.
+            views.setInt(R.id.weekday, "setTypeface", Typeface.create(selectedDayFont, Typeface.NORMAL).style)
+            views.setInt(R.id.date, "setTypeface", Typeface.create(selectedDateFont, Typeface.NORMAL).style)
+            
+            // Time Font Weight Override
+            val timeTypeface = if (timeFont == 0) {
+                val weightName = listOf("sans-serif-thin", "sans-serif-light", "sans-serif", "sans-serif-medium", "sans-serif")[weight.coerceIn(0, 4)]
+                if (weight == 4) Typeface.create(weightName, Typeface.BOLD) else Typeface.create(weightName, Typeface.NORMAL)
+            } else {
+                Typeface.create(selectedTimeFont, Typeface.NORMAL)
+            }
+            views.setInt(R.id.time, "setTypeface", timeTypeface.style)
 
-            // BACKGROUND
-            views.setInt(
-                R.id.widget_root,
-                "setBackgroundColor",
-                background
-            )
-
-            // PADDING
-            val paddingDp = prefs.getInt(
-                "padding", 12
-            ).coerceIn(0, 40)
-
-            val paddingPx = (
-                paddingDp * context.resources.displayMetrics.density
-            ).toInt()
-
-            views.setViewPadding(
-                R.id.widget_root,
-                paddingPx,
-                paddingPx,
-                paddingPx,
-                paddingPx
-            )
-
-            // TEXT ALIGNMENT: 0 LEFT, 1 CENTRE, 2 RIGHT
-            val alignment = when (
-                prefs.getInt("text_alignment", 1)
-            ) {
-                0 -> Gravity.LEFT or Gravity.CENTER_VERTICAL
-                2 -> Gravity.RIGHT or Gravity.CENTER_VERTICAL
-                else -> Gravity.CENTER
+            // 5. Setup Background
+            if (backgroundColor == Color.TRANSPARENT) {
+                views.setInt(R.id.widget_root, "setBackgroundColor", Color.TRANSPARENT)
+            } else {
+                views.setInt(R.id.widget_root, "setBackgroundColor", backgroundColor)
             }
 
-            val allTextIds =
-                weekdayIds.toList() +
-                dateIds.toList() +
-                timeIds.flatMap { it.toList() }
+            // 6. Setup Padding
+            val density = context.resources.displayMetrics.density
+            val paddingPx = (padding * density + 0.5f).toInt()
+            views.setViewPadding(R.id.widget_root, paddingPx, paddingPx, paddingPx, paddingPx)
 
-            allTextIds.forEach { viewId ->
-                views.setInt(viewId, "setGravity", alignment)
+            // 7. Setup Text Alignment (Horizontal)
+            val horizGravity = when (alignment) {
+                0 -> Gravity.LEFT
+                2 -> Gravity.RIGHT
+                else -> Gravity.CENTER_HORIZONTAL
             }
+            // Apply horizontal alignment to the inner container we added in the XML
+            views.setInt(R.id.widget_text_container, "setGravity", horizGravity)
 
-            // WEEKDAY
-            val dayFont = prefs.getInt(
-                "weekday_font", 0
-            ).coerceIn(0, 4)
-
-            weekdayIds.forEachIndexed { index, viewId ->
-                views.setTextViewText(viewId, weekday)
-                views.setTextColor(viewId, foreground)
-
-                views.setTextViewTextSize(
-                    viewId,
-                    2,
-                    prefs.getInt("day_size", 34)
-                        .coerceAtLeast(10).toFloat()
-                )
-
-                views.setViewVisibility(
-                    viewId,
-                    if (index == dayFont) View.VISIBLE
-                    else View.GONE
-                )
+            // 8. Setup Widget Position (Vertical)
+            val vertGravity = when {
+                position.startsWith("top") -> Gravity.TOP
+                position.startsWith("bottom") -> Gravity.BOTTOM
+                else -> Gravity.CENTER_VERTICAL
             }
+            // Apply vertical gravity to the root layout so the whole clock moves up/down
+            views.setInt(R.id.widget_root, "setGravity", vertGravity)
 
-            // DATE
-            val dateFont = prefs.getInt(
-                "date_font", 0
-            ).coerceIn(0, 4)
-
-            dateIds.forEachIndexed { index, viewId ->
-                views.setTextViewText(viewId, date)
-                views.setTextColor(viewId, foreground)
-
-                views.setTextViewTextSize(
-                    viewId,
-                    2,
-                    prefs.getInt("date_size", 22)
-                        .coerceAtLeast(10).toFloat()
-                )
-
-                views.setViewVisibility(
-                    viewId,
-                    if (index == dateFont) View.VISIBLE
-                    else View.GONE
-                )
-            }
-
-            // TIME
-            val timeFont = prefs.getInt(
-                "time_font", 0
-            ).coerceIn(0, 4)
-
-            val selectedWeight = prefs.getInt(
-                "weight", 0
-            ).coerceIn(0, 4)
-
-            timeIds.forEachIndexed { familyIndex, ids ->
-                ids.forEachIndexed { weightIndex, viewId ->
-
-                    views.setTextViewText(viewId, time)
-                    views.setTextColor(viewId, foreground)
-
-                    views.setTextViewTextSize(
-                        viewId,
-                        2,
-                        prefs.getInt("time_size", 58)
-                            .coerceAtLeast(10).toFloat()
-                    )
-
-                    views.setViewVisibility(
-                        viewId,
-                        if (
-                            familyIndex == timeFont &&
-                            weightIndex == selectedWeight
-                        ) View.VISIBLE
-                        else View.GONE
-                    )
-                }
-            }
-
-            manager.updateAppWidget(id, views)
-        }
-
-        fun updateAll(context: Context) {
-            val manager = AppWidgetManager.getInstance(context)
-
-            val ids = manager.getAppWidgetIds(
-                ComponentName(
-                    context,
-                    ClockWidgetProvider::class.java
-                )
+            // 9. Optional: Clicking the widget opens the SettingsActivity
+            val configIntent = Intent(context, SettingsActivity::class.java)
+            val configPendingIntent = PendingIntent.getActivity(
+                context, 0, configIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            views.setOnClickPendingIntent(R.id.widget_root, configPendingIntent)
 
-            ids.forEach {
-                updateWidget(context, manager, it)
-            }
-        }
-
-        private fun tickPendingIntent(
-            context: Context
-        ): PendingIntent {
-            val intent = Intent(
-                context,
-                ClockWidgetProvider::class.java
-            ).apply {
-                action = ACTION_TICK
-            }
-
-            return PendingIntent.getBroadcast(
-                context,
-                1001,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or
-                    PendingIntent.FLAG_IMMUTABLE
-            )
-        }
-
-        private fun scheduleUpdates(context: Context) {
-            val alarm = context.getSystemService(
-                Context.ALARM_SERVICE
-            ) as AlarmManager
-
-            val pendingIntent = tickPendingIntent(context)
-            val now = System.currentTimeMillis()
-
-            val nextMinute =
-                now - (now % 60000L) + 60000L
-
-            alarm.setRepeating(
-                AlarmManager.RTC,
-                nextMinute,
-                60000L,
-                pendingIntent
-            )
+            // Finally, update the widget
+            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 }
